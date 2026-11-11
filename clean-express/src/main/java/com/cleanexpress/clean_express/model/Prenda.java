@@ -27,4 +27,10 @@ public class Prenda {
 
     @Column(name = "precio_unitario", nullable = false)
     private BigDecimal precioUnitario;
+
+    @Column(name = "estado")
+    private String estadoPrenda = "Recibida"; // Estado inicial por defecto
+
+    @Column(name = "observaciones")
+    private String observaciones;
 }

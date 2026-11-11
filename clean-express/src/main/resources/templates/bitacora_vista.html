@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Bitácora de Notificaciones - CleanExpress</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>Bitácora de Notificaciones / WhatsApp (RF-09)</h3>
+        <a href="/recepcion" class="btn btn-secondary">Regresar a Mostrador</a>
+    </div>
+
+    <div class="card p-4 shadow-sm">
+        <table class="table table-bordered">
+            <thead class="table-dark">
+            <tr>
+                <th>ID Notificación</th>
+                <th>Pedido #</th>
+                <th>Fecha y Hora</th>
+                <th>Mensaje Enviado</th>
+                <th>Estado</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="n : ${notificaciones}">
+                <td th:text="${n.idNotificacion}"></td>
+                <td th:text="${n.idPedido}"></td>
+                <td th:text="${n.fechaEnvio}"></td>
+                <td th:text="${n.mensaje}"></td>
+                <td><span class="badge bg-success" th:text="${n.estadoEnvio}"></span></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

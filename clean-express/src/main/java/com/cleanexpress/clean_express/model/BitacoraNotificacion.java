@@ -11,18 +11,18 @@ public class BitacoraNotificacion {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id_bitacora")
-    private Long idBitacora;
+    @Column(name = "id_notificacion")
+    private Long idNotificacion;
 
-    @Column(name = "id_pedido", nullable = false)
+    @Column(name = "id_pedido")
     private Long idPedido;
 
-    @Column(nullable = false)
+    @Column(name = "fecha_envio")
+    private LocalDateTime fechaEnvio;
+
+    @Column(name = "mensaje")
     private String mensaje;
 
-    @Column(name = "fecha_envio")
-    private LocalDateTime fechaEnvio = LocalDateTime.now();
-
-    @Column(name = "estado_envio", nullable = false)
-    private String estadoEnvio; // Envíado, Pendiente, Fallido
+    @Column(name = "estado_envio")
+    private String estadoEnvio;
 }

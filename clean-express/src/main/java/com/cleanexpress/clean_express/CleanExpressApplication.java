@@ -15,21 +15,4 @@ public class CleanExpressApplication {
 		SpringApplication.run(CleanExpressApplication.class, args);
 	}
 
-	@Bean
-	CommandLineRunner initTest(ClienteRepository clienteRepository, PedidoService pedidoService) {
-		return args -> {
-			// 1. Primero asegurémonos de tener un cliente guardado en la BD
-			Cliente c = new Cliente();
-			c.setNombre("Carlos Slim");
-			c.setTelefono("7779876543");
-			c.setCorreo("carlos@email.com");
-			c.setDireccion("Temilpa Viejo, Morelos");
-			Cliente clienteGuardado = clienteRepository.save(c);
-
-			System.out.println("--- CLIENTE BASE GUARDADO CON ID: " + clienteGuardado.getIdCliente() + " ---");
-
-			// 2. Ejecutamos el servicio para registrar todo el flujo del pedido asociado a este cliente
-			pedidoService.registrarPedidoPrueba(clienteGuardado.getIdCliente());
-		};
-	}
 }
