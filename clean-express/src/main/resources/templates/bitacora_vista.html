@@ -21,6 +21,7 @@
                 <th>Fecha y Hora</th>
                 <th>Mensaje Enviado</th>
                 <th>Estado</th>
+                <th>Enviar</th>
             </tr>
             </thead>
             <tbody>
@@ -30,9 +31,16 @@
                 <td th:text="${n.fechaEnvio}"></td>
                 <td th:text="${n.mensaje}"></td>
                 <td><span class="badge bg-success" th:text="${n.estadoEnvio}"></span></td>
+                <td>
+                    <a th:href="@{'https://wa.me/52' + ${n.telefono} + '?text=' + ${n.mensaje}}"
+                       target="_blank" class="btn btn-sm btn-success">
+                        📱 Enviar WhatsApp
+                    </a>
+                </td>
             </tr>
             </tbody>
         </table>
+
     </div>
 </div>
 </body>

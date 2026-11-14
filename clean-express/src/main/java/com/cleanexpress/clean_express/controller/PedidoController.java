@@ -170,6 +170,7 @@ public class PedidoController {
     public void enviarNotificacionPedidoListo(Long idPedido, String telefonoCliente) {
         BitacoraNotificacion notif = new BitacoraNotificacion();
         notif.setIdPedido(idPedido);
+        notif.setTelefono(telefonoCliente); // <--- Guardamos el teléfono aquí
         notif.setFechaEnvio(java.time.LocalDateTime.now());
         notif.setMensaje("Estimado cliente, su ropa del pedido #" + idPedido + " está registrada y en proceso.");
         notif.setEstadoEnvio("Enviado");

@@ -14,37 +14,39 @@
             <a href="/recepcion" class="btn btn-secondary">Regresar a Mostrador</a>
         </div>
     </div>
-
     <div class="card p-4 shadow-sm">
-        <table class="table table-striped align-middle">
-            <thead>
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
             <tr>
-                <th>ID Prenda</th>
-                <th>Pedido #</th>
-                <th>Tipo</th>
-                <th>Descripción</th>
-                <th>Estado Actual</th>
-                <th>Acción / Cambiar Estado</th>
+                <th>Pedido # / Cliente</th>
+                <th>Prenda y Color</th>
+                <th>Descripción / Detalles</th>
+                <th>Proceso Actual</th>
+                <th>Cambiar Estado</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="p : ${prendas}">
-                <td th:text="${p.idPrenda}"></td>
-                <td th:text="${p.idPedido}"></td>
-                <td th:text="${p.tipoPrenda}"></td>
+                <td>
+                    <span class="fw-bold text-primary" th:text="'Pedido #' + ${p.idPedido}"></span>
+                </td>
+                <td>
+                    <span th:text="${p.tipoPrenda}"></span>
+                    <small class="text-muted" th:text="'(' + ${p.color} + ')'"></small>
+                </td>
                 <td th:text="${p.descripcionDetalles}"></td>
                 <td>
-                    <span class="badge bg-warning text-dark" th:text="${p.estadoPrenda}"></span>
+                    <span class="badge bg-info text-dark" th:text="${p.estadoPrenda}"></span>
                 </td>
                 <td>
                     <form th:action="@{/taller/actualizar-estado}" method="post" class="d-flex gap-2">
                         <input type="hidden" name="idPrenda" th:value="${p.idPrenda}"/>
                         <select name="nuevoEstado" class="form-select form-select-sm">
-                            <option value="Recibida">Recibida</option>
-                            <option value="En Lavado">En Lavado</option>
-                            <option value="Planchada">Planchada</option>
-                            <option value="Lista">Lista</option>
-                            <option value="Entregada">Entregada</option>
+                            <option value="Recibida" th:selected="${p.estadoPrenda == 'Recibida'}">Recibida</option>
+                            <option value="En Lavado" th:selected="${p.estadoPrenda == 'En Lavado'}">En Lavado</option>
+                            <option value="Planchada" th:selected="${p.estadoPrenda == 'Planchada'}">Planchada</option>
+                            <option value="Lista" th:selected="${p.estadoPrenda == 'Lista'}">Lista</option>
+                            <option value="Entregada" th:selected="${p.estadoPrenda == 'Entregada'}">Entregada</option>
                         </select>
                         <button type="submit" class="btn btn-sm btn-success">Actualizar</button>
                     </form>
@@ -53,6 +55,7 @@
             </tbody>
         </table>
     </div>
+
 </div>
 </body>
 </html>

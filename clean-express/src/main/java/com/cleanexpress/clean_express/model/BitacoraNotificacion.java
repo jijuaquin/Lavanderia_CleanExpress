@@ -17,6 +17,9 @@ public class BitacoraNotificacion {
     @Column(name = "id_pedido")
     private Long idPedido;
 
+    @Column(name = "telefono")
+    private String telefono; // <--- Agregamos este campo
+
     @Column(name = "fecha_envio")
     private LocalDateTime fechaEnvio;
 
