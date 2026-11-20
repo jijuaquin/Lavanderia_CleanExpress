@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 @Controller
 public class PedidoController {
@@ -26,6 +28,7 @@ public class PedidoController {
     @Autowired private PrendaRepository prendaRepository;
     @Autowired private PagoRepository pagoRepository;
     @Autowired private BitacoraNotificacionRepository bitacoraRepository;
+
 
     @GetMapping("/recepcion")
     public String mostrarRecepcion(@RequestParam(value = "buscar", required = false) String buscar, Model model, HttpSession session) {
@@ -40,6 +43,8 @@ public class PedidoController {
         }
         return "recepcion";
     }
+
+
 
     @GetMapping("/pedidos/consulta")
     public String consultarPedidos(
@@ -56,6 +61,12 @@ public class PedidoController {
             listaPedidos = pedidoRepository.findAll();
         }
 
+        Map<Long, String> nombresClientes = new HashMap<>();
+        for (Cliente c : clienteRepository.findAll()) {
+            nombresClientes.put(c.getIdCliente(), c.getNombre());
+        }
+        model.addAttribute("nombresClientes", nombresClientes);
+
         model.addAttribute("pedidos", listaPedidos);
         model.addAttribute("estadoSeleccionado", estado);
         return "consulta_pedidos";
@@ -68,7 +79,7 @@ public class PedidoController {
             @RequestParam(value = "telefono", required = false) String telefono,
             @RequestParam(value = "correo", required = false) String correo,
             @RequestParam(value = "direccion", required = false) String direccion,
-            @RequestParam("tipoServicio") String tipoServicio,
+            @RequestParam(value = "tiposServicio", required = false) List<String> tiposServicio,
             @RequestParam("fechaEntrega") LocalDate fechaEntrega,
             @RequestParam("tipoPrenda") List<String> tiposPrenda,
             @RequestParam("color") List<String> colores,
@@ -79,17 +90,37 @@ public class PedidoController {
             HttpServletResponse response
     ) throws IOException, DocumentException {
 
-        // 1. Gestionar Cliente (Evitar duplicados)
+// 1. Gestionar Cliente (Evitar duplicados)
         Cliente cliente;
+        String nombreLimpio = (nombre != null) ? nombre.trim() : "";
+        String telefonoLimpio = (telefono != null) ? telefono.replaceAll("[^0-9]", "") : "";
+        String correoLimpio = (correo != null) ? correo.trim().toLowerCase() : "";
+        String direccionLimpia = (direccion != null) ? direccion.trim().replaceAll("\\s{2,}", " ") : "";
+
+        if (!correoLimpio.isEmpty() && !correoLimpio.matches("^[A-Za-z0-9._%+\\-]+@[A-Za-z0-9.\\-]+\\.[A-Za-z]{2,}$")) {
+            throw new IllegalArgumentException("El formato del correo electrónico no es válido.");
+        }
+
+        if (!direccionLimpia.isEmpty() && direccionLimpia.length() < 4) {
+            throw new IllegalArgumentException("La dirección debe tener al menos 4 caracteres.");
+        }
+
         if (idClienteExistente != null) {
             cliente = clienteRepository.findById(idClienteExistente).orElseThrow();
         } else {
-            cliente = new Cliente();
-            cliente.setNombre(nombre);
-            cliente.setTelefono(telefono);
-            cliente.setCorreo(correo);
-            cliente.setDireccion(direccion);
-            cliente = clienteRepository.save(cliente);
+            if (!nombreLimpio.matches("[A-Za-zÁÉÍÓÚáéíóúÑñ\\s]{2,80}") || !telefonoLimpio.matches("[0-9]{10}")) {
+                throw new IllegalArgumentException("Datos de cliente inválidos: verifique nombre y teléfono a 10 dígitos.");
+            }
+
+            // Evitar duplicados: si ya existe el teléfono, reutilizamos ese cliente
+            cliente = clienteRepository.findByTelefono(telefonoLimpio).orElseGet(() -> {
+                Cliente nuevo = new Cliente();
+                nuevo.setNombre(nombreLimpio);
+                nuevo.setTelefono(telefonoLimpio);
+                nuevo.setCorreo(correoLimpio.isEmpty() ? null : correoLimpio);
+                nuevo.setDireccion(direccionLimpia.isEmpty() ? null : direccionLimpia);
+                return clienteRepository.save(nuevo);
+            });
         }
 
         // Calcular costo total sumando cada prenda individual
@@ -101,14 +132,20 @@ public class PedidoController {
         }
 
         // 2. Registrar Pedido
+        String serviciosTexto = (tiposServicio != null && !tiposServicio.isEmpty())
+                ? String.join(", ", tiposServicio)
+                : "Lavado";
+
         Pedido pedido = new Pedido();
         pedido.setIdCliente(cliente.getIdCliente());
         pedido.setEstado("Recibido");
         pedido.setFechaEntregaEstimada(fechaEntrega);
         pedido.setTotal(costoTotal.doubleValue());
+        pedido.setTipoServicio(serviciosTexto);
+
         Pedido pedidoGuardado = pedidoRepository.save(pedido);
 
-        // 3. Registrar cada Prenda en la BD
+        // 3. Registrar cada Prenda en la BDS
         for (int i = 0; i < tiposPrenda.size(); i++) {
             Prenda prenda = new Prenda();
             prenda.setIdPedido(pedidoGuardado.getIdPedido());
@@ -146,7 +183,7 @@ public class PedidoController {
         document.add(new Paragraph("Folio de Pedido: #" + pedidoGuardado.getIdPedido(), fontNormal));
         document.add(new Paragraph("Fecha de Recepción: " + LocalDate.now(), fontNormal));
         document.add(new Paragraph("Fecha de Entrega Estimada: " + fechaEntrega, fontNormal));
-        document.add(new Paragraph("Servicio: " + tipoServicio, fontNormal));
+        document.add(new Paragraph("Servicio: " + serviciosTexto, fontNormal));
         document.add(new Paragraph("------------------------------------------------------------------------------------------------"));
         document.add(new Paragraph("Cliente: " + cliente.getNombre() + " | Tel: " + cliente.getTelefono(), fontNormal));
         document.add(new Paragraph("------------------------------------------------------------------------------------------------"));

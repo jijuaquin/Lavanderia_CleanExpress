@@ -29,4 +29,7 @@ public class Pedido {
 
     @Column(nullable = false)
     private Double total;
+
+    @Column (nullable=false)
+    private String tipoServicio;
 }

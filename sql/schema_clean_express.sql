@@ -15,6 +15,7 @@ CREATE TABLE pedido (
     fecha_entrega_estimada DATE,
     estado VARCHAR(30) NOT NULL, -- Recibido, En Proceso, Listo, Entregado
     total NUMERIC(10,2) NOT NULL,
+    tipo_servicio varchar(100) not null,
     CONSTRAINT fk_cliente FOREIGN KEY (id_cliente) REFERENCES cliente(id_cliente)
 );
 

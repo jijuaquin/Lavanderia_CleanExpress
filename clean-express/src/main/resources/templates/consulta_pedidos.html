@@ -44,7 +44,10 @@
             <tbody>
             <tr th:each="p : ${pedidos}">
                 <td th:text="'#' + ${p.idPedido}"></td>
-                <td th:text="${p.idCliente}"></td>
+                <td>
+                    <span th:text="${p.idCliente}"></span>
+                    <span class="text-muted" th:text="' - ' + (${nombresClientes[p.idCliente]} ?: 'Cliente no encontrado')"></span>
+                </td>
                 <td th:text="${p.fechaRecepcion}"></td>
                 <td th:text="${p.fechaEntregaEstimada}"></td>
                 <td th:text="'$' + ${p.total}"></td>
